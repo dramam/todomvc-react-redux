@@ -1,3 +1,5 @@
+export const GET_TODOS = 'GET_TODOS'
+export const GET_TODOS_DONE = 'GET_TODOS_DONE'
 export const ADD_TODO = 'ADD_TODO'
 export const ADD_TODO_DONE = 'ADD_TODO_DONE'
 export const DELETE_TODO = 'DELETE_TODO'

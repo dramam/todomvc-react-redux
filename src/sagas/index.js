@@ -1,17 +1,19 @@
 import { put, call, takeEvery, select } from 'redux-saga/effects';
-import { ADD_TOD,
+import { ADD_TODO,
          DELETE_TODO,
          EDIT_TODO,
-         COMPLETE_TODO
-        } from './constants';
+         COMPLETE_TODO,
+         GET_TODOS
+        } from '../constants/ActionTypes';
 import { addTodoDone,
          deleteTodoDone,
-         updateTodoDone } from './actions';
-import * as fetch from 'isomorphic-fetch';
+         updateTodoDone,
+         getTodosDone } from '../actions';
+var fetch = require('isomorphic-fetch');
 
-const todosUrl = '';
+const todosUrl = 'http://localhost:3030/todos';
 
-function parseJSON(respons) {
+function parseJSON(response) {
   return response.json();
 }
 
@@ -27,22 +29,51 @@ function filterById(todos, id) {
 }
 
 function getApi(url) {
-  return fetch(url, {method: 'GET'});
+  return fetch(url, {
+    method: 'GET',
+    mode: 'cors',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  });
 }
 
 function postApi(url, body) {
-  return fetch(url, {method: 'POST', body: body});
+  return fetch(url, {
+    method: 'POST', 
+    mode: 'cors',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)});
 }
 
 function putApi(url, body) {
-  return fetch(url, {method: 'PUT', body: body});
+  return fetch(url, {
+    method: 'PUT', 
+    mode: 'cors',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)});
 }
 
 function deleteApi(url) {
-  return fetch(url, {method: 'DELETE'});
+  return fetch(url, {
+    method: 'DELETE',
+    mode: 'cors',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  });
 }
 
 export function addTodoApi(todo) {
+  console.log(JSON.stringify(todo));
   return postApi(todosUrl, todo)
          .then(checkStatus)
          .then(parseJSON)
@@ -54,7 +85,7 @@ export function addTodoApi(todo) {
          });
 }
 
-function updateTodo(todo) {
+export function updateTodoApi(todo) {
   return putApi(todosUrl + '/' + todo.id.toString(), todo)
          .then(checkStatus)
          .then(parseJSON)
@@ -71,7 +102,7 @@ function getTodosApi() {
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
-           return parsedData;
+           return parsedData.data ? parsedData.data : [];
          }).catch(function _fail(err) {
            console.log('Failed to get todos - ', err);
            throw Error(err)
@@ -104,7 +135,8 @@ export function* addTodo(action) {
 // worker Saga: will be fired on EDIT_TODO action
 export function* editTodo(action) {
   try {
-    const todos = yield select(); // Get state
+    const {todos} = yield select(); // Get state
+    console.log(todos);
     const todo = filterById(todos, action.id);
     const response = yield call(
         updateTodoApi, {...todo, text: action.text });
@@ -117,7 +149,8 @@ export function* editTodo(action) {
 // worker Saga: will be fired on EDIT_TODO action
 export function* completeTodo(action) {
   try {
-    const todos = yield select(); // Get state
+    const {todos} = yield select(); // Get state
+    console.log(todos);
     const todo = filterById(todos, action.id);
     const response = yield call(
         updateTodoApi, {...todo, completed: !todo.completed});
