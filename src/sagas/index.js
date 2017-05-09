@@ -11,7 +11,8 @@ import { addTodoDone,
          getTodosDone } from '../actions';
 var fetch = require('isomorphic-fetch');
 
-const todosUrl = 'http://localhost:3030/todos';
+const config =  require('../../appconfig.json');
+const todosUrl = config.url;
 
 function parseJSON(response) {
   return response.json();
