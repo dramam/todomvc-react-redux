@@ -11,8 +11,8 @@ import { addTodoDone,
          getTodosDone } from '../actions';
 var fetch = require('isomorphic-fetch');
 
-const config =  require('../../appconfig.json');
-const todosUrl = config.url;
+let config = null;
+let todosUrl = null;
 
 function parseJSON(response) {
   return response.json();
@@ -27,6 +27,25 @@ function checkStatus(response) {
 
 function filterById(todos, id) {
   return todos.filter(todo => todo.id === id)[0];
+}
+
+export function getConfig() {
+  try {
+    if (config) {
+      todosUrl = config.apiUrl;
+      return config;
+    }
+    const location =
+      window.location.protocol + '//' + window.location.host + '/';
+    return fetch(location + 'appconfig.json')
+    .then((res) => res.json())
+    .then((data) => {
+      todosUrl = data.apiUrl;
+      return data;
+    });
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 function getApi(url) {
@@ -125,6 +144,7 @@ function deleteTodoApi(id) {
 // worker Saga: will be fired on ADD_TODO action
 export function* addTodo(action) {
   try {
+    config = yield call(getConfig);
     const todo = {completed: false, text: action.text};
     const response = yield call(addTodoApi, todo);
     yield put(addTodoDone(response));
@@ -136,6 +156,7 @@ export function* addTodo(action) {
 // worker Saga: will be fired on EDIT_TODO action
 export function* editTodo(action) {
   try {
+    config = yield call(getConfig);
     const {todos} = yield select(); // Get state
     console.log(todos);
     const todo = filterById(todos, action.id);
@@ -150,6 +171,7 @@ export function* editTodo(action) {
 // worker Saga: will be fired on EDIT_TODO action
 export function* completeTodo(action) {
   try {
+    config = yield call(getConfig);
     const {todos} = yield select(); // Get state
     console.log(todos);
     const todo = filterById(todos, action.id);
@@ -164,6 +186,7 @@ export function* completeTodo(action) {
 // worker Saga : will be fired on DELETE_PROJECT action
 function* deleteTodo(action) {
   try {
+    config = yield call(getConfig);
     const response = yield call(deleteTodoApi, action.id);
     yield put(deleteTodoDone(response));
   } catch (err) {
@@ -173,6 +196,7 @@ function* deleteTodo(action) {
 
 function* getTodos(action) {
   try {
+    config = yield call(getConfig);
     const todos = yield call(getTodosApi);
     yield put(getTodosDone(todos));
   } catch (err) {
