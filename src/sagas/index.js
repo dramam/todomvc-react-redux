@@ -94,7 +94,7 @@ function deleteApi(url) {
 
 export function addTodoApi(todo) {
   console.log(JSON.stringify(todo));
-  return postApi(todosUrl, todo)
+  return postApi(todosUrl + '/todos', todo)
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
@@ -106,7 +106,7 @@ export function addTodoApi(todo) {
 }
 
 export function updateTodoApi(todo) {
-  return putApi(todosUrl + '/' + todo.id.toString(), todo)
+  return putApi(todosUrl + '/todos/' + todo.id.toString(), todo)
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
@@ -118,7 +118,7 @@ export function updateTodoApi(todo) {
 }
 
 function getTodosApi() {
-  return getApi(todosUrl)
+  return getApi(todosUrl + '/todos')
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
@@ -130,7 +130,7 @@ function getTodosApi() {
 }
 
 function deleteTodoApi(id) {
-    return deleteApi(todosUrl + '/' + id.toString())
+    return deleteApi(todosUrl + '/todos/' + id.toString())
            .then(checkStatus)
            .then(parseJSON)
            .then(function _success(parsedData) {
