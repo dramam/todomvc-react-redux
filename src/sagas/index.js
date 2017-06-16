@@ -13,7 +13,7 @@ var fetch = require('isomorphic-fetch');
 
 let config = null;
 let todosUrl = null;
-const STAGE = 'prod';
+const STAGE = 'dev';
 
 function parseJSON(response) {
   return response.json();
@@ -33,7 +33,8 @@ function filterById(todos, id) {
 export function getConfig() {
   try {
     if (config) {
-      todosUrl = config.url[STAGE] + '/todos';
+      todosUrl = config.apiUrl[STAGE] + '/todos';
+      console.log(todosUrl);
       return config;
     }
     const location =
@@ -41,7 +42,8 @@ export function getConfig() {
     return fetch(location + 'appconfig.json')
     .then((res) => res.json())
     .then((data) => {
-      todosUrl = data.url[STAGE] + '/todos';
+      todosUrl = data.apiUrl[STAGE] + '/todos';
+      console.log(todosUrl);
       return data;
     });
   } catch (err) {
