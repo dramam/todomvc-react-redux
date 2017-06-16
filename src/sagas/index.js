@@ -13,6 +13,7 @@ var fetch = require('isomorphic-fetch');
 
 let config = null;
 let todosUrl = null;
+const STAGE = 'prod';
 
 function parseJSON(response) {
   return response.json();
@@ -32,7 +33,7 @@ function filterById(todos, id) {
 export function getConfig() {
   try {
     if (config) {
-      todosUrl = config.apiUrl;
+      todosUrl = config.url[STAGE] + '/todos';
       return config;
     }
     const location =
@@ -40,7 +41,7 @@ export function getConfig() {
     return fetch(location + 'appconfig.json')
     .then((res) => res.json())
     .then((data) => {
-      todosUrl = data.apiUrl;
+      todosUrl = data.url[STAGE] + '/todos';
       return data;
     });
   } catch (err) {
@@ -94,7 +95,7 @@ function deleteApi(url) {
 
 export function addTodoApi(todo) {
   console.log(JSON.stringify(todo));
-  return postApi(todosUrl + '/todos', todo)
+  return postApi(todosUrl, todo)
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
@@ -106,7 +107,7 @@ export function addTodoApi(todo) {
 }
 
 export function updateTodoApi(todo) {
-  return putApi(todosUrl + '/todos/' + todo.id.toString(), todo)
+  return putApi(todosUrl + todo.id.toString(), todo)
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
@@ -118,7 +119,7 @@ export function updateTodoApi(todo) {
 }
 
 function getTodosApi() {
-  return getApi(todosUrl + '/todos')
+  return getApi(todosUrl)
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
@@ -130,7 +131,7 @@ function getTodosApi() {
 }
 
 function deleteTodoApi(id) {
-    return deleteApi(todosUrl + '/todos/' + id.toString())
+    return deleteApi(todosUrl + id.toString())
            .then(checkStatus)
            .then(parseJSON)
            .then(function _success(parsedData) {
