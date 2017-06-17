@@ -109,7 +109,7 @@ export function addTodoApi(todo) {
 }
 
 export function updateTodoApi(todo) {
-  return putApi(todosUrl + todo.id.toString(), todo)
+  return putApi(todosUrl + '/' + todo.id.toString(), todo)
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
@@ -125,7 +125,7 @@ function getTodosApi() {
          .then(checkStatus)
          .then(parseJSON)
          .then(function _success(parsedData) {
-           return parsedData.data ? parsedData.data : [];
+           return parsedData ? parsedData : [];
          }).catch(function _fail(err) {
            console.log('Failed to get todos - ', err);
            throw Error(err)
@@ -133,7 +133,7 @@ function getTodosApi() {
 }
 
 function deleteTodoApi(id) {
-    return deleteApi(todosUrl + id.toString())
+    return deleteApi(todosUrl + '/' + id.toString())
            .then(checkStatus)
            .then(parseJSON)
            .then(function _success(parsedData) {
@@ -201,6 +201,7 @@ function* getTodos(action) {
   try {
     config = yield call(getConfig);
     const todos = yield call(getTodosApi);
+    console.log('todos - ' + JSON.stringify(todos));
     yield put(getTodosDone(todos));
   } catch (err) {
     console.log('Could not get todos - ' + err);
